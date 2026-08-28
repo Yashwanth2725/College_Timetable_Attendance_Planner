@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Today's Classes</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        .header {
+            background: #1f2937;
+            color: white;
+            padding: 25px 20px;
+        }
+
+        .header-content {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .header p {
+            margin: 7px 0 0;
+            color: #d1d5db;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .back {
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: #374151;
+            font-weight: bold;
+        }
+
+        .class-card {
+            background: white;
+            padding: 22px;
+            margin-bottom: 18px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+        }
+
+        .time {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .subject {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .type {
+            color: #6b7280;
+            margin-bottom: 18px;
+        }
+
+        .status {
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .buttons form {
+            margin: 0;
+        }
+
+        .buttons button {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .present {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .absent {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .present:hover,
+        .absent:hover {
+            opacity: 0.8;
+        }
+
+        .marked-present {
+            color: #065f46;
+        }
+
+        .marked-absent {
+            color: #991b1b;
+        }
+
+        .changed {
+            display: inline-block;
+            margin-bottom: 12px;
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: #fff3cd;
+            color: #856404;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .empty {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            color: #6b7280;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+        }
+
+        @media (max-width: 600px) {
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .container {
+                margin-top: 20px;
+            }
+
+            .buttons button {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <div class="header">
+
+        <div class="header-content">
+
+            <h1>
+                📅 Today's Classes
+            </h1>
+
+            <p>
+                {{ today_name }} — {{ today_date }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="container">
+
+
+        <a href="/" class="back">
+            ← Back to Dashboard
+        </a>
+
+
+        {% if today_classes %}
+
+
+            {% for item in today_classes %}
+
+
+                <div class="class-card">
+
+
+                    {% if item.changed %}
+
+                        <div class="changed">
+
+                            🔄 {{ item.change_type }}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="time">
+
+                        {{ item.start_time }}
+                        –
+                        {{ item.end_time }}
+
+                    </div>
+
+
+                    <div class="subject">
+
+                        {{ item.subject.name }}
+
+                    </div>
+
+
+                    <div class="type">
+
+                        {{ item.subject.subject_type }}
+
+                    </div>
+
+
+                    {% if attendance_status[item.id] == "Present" %}
+
+                        <div class="status marked-present">
+
+                            ✅ Attendance already marked: Present
+
+                        </div>
+
+                    {% elif attendance_status[item.id] == "Absent" %}
+
+                        <div class="status marked-absent">
+
+                            ❌ Attendance already marked: Absent
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="status">
+
+                            Attendance not marked yet
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="buttons">
+
+
+                        <form
+                            method="POST"
+                            action="/mark-attendance/{{ item.id }}/Present"
+                        >
+
+                            <button
+                                type="submit"
+                                class="present"
+                            >
+
+                                ✅ Present
+
+                            </button>
+
+                        </form>
+
+
+                        <form
+                            method="POST"
+                            action="/mark-attendance/{{ item.id }}/Absent"
+                        >
+
+                            <button
+                                type="submit"
+                                class="absent"
+                            >
+
+                                ❌ Absent
+
+                            </button>
+
+                        </form>
+
+
+                    </div>
+
+
+                </div>
+
+
+            {% endfor %}
+
+
+        {% else %}
+
+
+            <div class="empty">
+
+                No classes scheduled for today.
+
+            </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+</body>
+
+</html>

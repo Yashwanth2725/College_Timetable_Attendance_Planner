@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+```
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+
+<meta name="theme-color" content="#1f2937">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<meta name="apple-mobile-web-app-title" content="Attendance Planner">
+
+<title>College Timetable & Attendance Planner</title>
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f5f7fb;
+        color: #1f2937;
+    }
+
+    /* ================================
+       HEADER
+    ================================= */
+
+    .header {
+        background: #1f2937;
+        color: white;
+        padding: 30px 20px;
+    }
+
+    .header-content {
+        max-width: 1150px;
+        margin: auto;
+    }
+
+    .header h1 {
+        margin: 0;
+        font-size: 30px;
+    }
+
+    .header p {
+        margin: 8px 0 0;
+        color: #d1d5db;
+    }
+
+    /* ================================
+       CONTAINER
+    ================================= */
+
+    .container {
+        max-width: 1150px;
+        margin: 30px auto;
+        padding: 0 20px;
+    }
+
+    /* ================================
+       SEMESTER CARD
+    ================================= */
+
+    .semester-card {
+        background: white;
+        padding: 22px 25px;
+        border-radius: 14px;
+        margin-bottom: 25px;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+
+        box-shadow:
+            0 3px 12px rgba(0,0,0,0.07);
+    }
+
+    .semester-info h2 {
+        margin: 0 0 7px;
+        font-size: 20px;
+    }
+
+    .semester-info p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .active-semester {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 7px 12px;
+        border-radius: 20px;
+
+        background: #f3f4f6;
+        color: #374151;
+
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .manage-button {
+        display: inline-block;
+        padding: 12px 18px;
+
+        background: #1f2937;
+        color: white;
+
+        text-decoration: none;
+        border-radius: 8px;
+
+        font-weight: bold;
+        font-size: 14px;
+
+        transition: 0.2s;
+    }
+
+    .manage-button:hover {
+        background: #111827;
+        transform: translateY(-1px);
+    }
+
+    /* ================================
+       NAVIGATION
+    ================================= */
+
+    .menu {
+        display: grid;
+
+        grid-template-columns:
+            repeat(auto-fit, minmax(150px, 1fr));
+
+        gap: 12px;
+        margin-bottom: 30px;
+    }
+
+    .menu a {
+        background: white;
+        color: #1f2937;
+
+        text-decoration: none;
+
+        padding: 15px;
+
+        border-radius: 10px;
+
+        text-align: center;
+
+        font-weight: bold;
+
+        box-shadow:
+            0 3px 10px rgba(0,0,0,0.07);
+
+        transition: 0.2s;
+    }
+
+    .menu a:hover {
+        transform: translateY(-2px);
+        background: #f9fafb;
+    }
+
+    /* ================================
+       SUMMARY CARDS
+    ================================= */
+
+    .cards {
+        display: grid;
+
+        grid-template-columns:
+            repeat(auto-fit, minmax(220px, 1fr));
+
+        gap: 18px;
+
+        margin-bottom: 30px;
+    }
+
+    .card {
+        background: white;
+
+        padding: 22px;
+
+        border-radius: 12px;
+
+        box-shadow:
+            0 3px 10px rgba(0,0,0,0.07);
+    }
+
+    .card-title {
+        color: #6b7280;
+
+        font-size: 14px;
+
+        font-weight: bold;
+
+        text-transform: uppercase;
+    }
+
+    .big-number {
+        font-size: 34px;
+
+        font-weight: bold;
+
+        margin: 8px 0;
+    }
+
+    .card-text {
+        color: #6b7280;
+
+        font-size: 14px;
+    }
+
+    /* ================================
+       SECTIONS
+    ================================= */
+
+    .section {
+        background: white;
+
+        padding: 25px;
+
+        border-radius: 12px;
+
+        margin-bottom: 25px;
+
+        box-shadow:
+            0 3px 10px rgba(0,0,0,0.07);
+    }
+
+    .section h2 {
+        margin-top: 0;
+
+        margin-bottom: 20px;
+    }
+
+    /* ================================
+       TODAY'S CLASSES
+    ================================= */
+
+    .class-item {
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: center;
+
+        gap: 20px;
+
+        padding: 16px 0;
+
+        border-bottom:
+            1px solid #e5e7eb;
+    }
+
+    .class-item:last-child {
+        border-bottom: none;
+    }
+
+    .class-info {
+        flex: 1;
+    }
+
+    .time {
+        font-weight: bold;
+
+        font-size: 15px;
+
+        margin-bottom: 5px;
+    }
+
+    .subject {
+        font-size: 17px;
+
+        font-weight: bold;
+    }
+
+    .type {
+        color: #6b7280;
+
+        font-size: 14px;
+    }
+
+    .badge {
+        padding: 6px 10px;
+
+        border-radius: 20px;
+
+        font-size: 12px;
+
+        font-weight: bold;
+    }
+
+    .changed {
+        background: #fff3cd;
+
+        color: #856404;
+    }
+
+    /* ================================
+       ATTENDANCE
+    ================================= */
+
+    .warning {
+        padding: 15px;
+
+        margin-bottom: 10px;
+
+        background: #fff3cd;
+
+        border-radius: 8px;
+    }
+
+    .safe {
+        padding: 15px;
+
+        margin-bottom: 10px;
+
+        background: #e8f5e9;
+
+        border-radius: 8px;
+    }
+
+    .empty {
+        color: #6b7280;
+    }
+
+    /* ================================
+       MOBILE
+    ================================= */
+
+    @media (max-width: 650px) {
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        .semester-card {
+            flex-direction: column;
+
+            align-items: flex-start;
+        }
+
+        .manage-button {
+            width: 100%;
+
+            text-align: center;
+        }
+
+        .class-item {
+            align-items: flex-start;
+        }
+
+    }
+
+</style>
+```
+
+</head>
+
+<body>
+
+```
+<!-- ================================
+     HEADER
+================================= -->
+
+<div class="header">
+
+    <div class="header-content">
+
+        <h1>
+            College Timetable & Attendance Planner
+        </h1>
+
+        <p>
+            Manage your classes, timetable and attendance.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="container">
+
+
+    <!-- ================================
+         SEMESTER MANAGEMENT
+    ================================= -->
+
+    <div class="semester-card">
+
+        <div class="semester-info">
+
+            <h2>
+                🎓 Semester Management
+            </h2>
+
+            <p>
+                Select and manage the semester
+                you are currently studying.
+            </p>
+
+
+            {% if active_semester %}
+
+                <div class="active-semester">
+
+                    Active Semester:
+                    {{ active_semester.name }}
+
+                </div>
+
+            {% else %}
+
+                <div class="active-semester">
+
+                    No active semester selected
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <a
+            href="/semesters"
+            class="manage-button"
+        >
+
+            ⚙️ Manage Semesters
+
+        </a>
+
+    </div>
+
+
+    <!-- ================================
+         NAVIGATION
+    ================================= -->
+
+    <div class="menu">
+
+        <a href="/subjects">
+            📚 Subjects
+        </a>
+
+        <a href="/timetable">
+            🗓️ Timetable
+        </a>
+
+        <a href="/today">
+            📅 Today's Classes
+        </a>
+
+        <a href="/attendance">
+            📊 Attendance
+        </a>
+
+        <a href="/planner">
+            🎯 75% Planner
+        </a>
+
+        <a href="/attendance-history">
+            📖 History
+        </a>
+
+        <a href="/timetable-changes">
+            🔄 Changes
+        </a>
+
+    </div>
+
+
+    <!-- ================================
+         SUMMARY
+    ================================= -->
+
+    <div class="cards">
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Today's Classes
+            </div>
+
+            <div class="big-number">
+                {{ today_classes|length }}
+            </div>
+
+            <div class="card-text">
+
+                Classes scheduled for
+                {{ today_name }}
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Overall Attendance
+            </div>
+
+            <div class="big-number">
+                {{ overall_percentage }}%
+            </div>
+
+            <div class="card-text">
+
+                {{ total_present }}
+                present out of
+                {{ total_classes }}
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Below 75%
+            </div>
+
+            <div class="big-number">
+                {{ below_75|length }}
+            </div>
+
+            <div class="card-text">
+
+                Subjects needing attention
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Safe Subjects
+            </div>
+
+            <div class="big-number">
+                {{ safe_subjects|length }}
+            </div>
+
+            <div class="card-text">
+
+                At or above 75%
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ================================
+         TODAY'S CLASSES
+    ================================= -->
+
+    <div class="section">
+
+        <h2>
+            📅 Today's Classes — {{ today_name }}
+        </h2>
+
+
+        {% if today_classes %}
+
+
+            {% for item in today_classes %}
+
+                <div class="class-item">
+
+                    <div class="class-info">
+
+                        <div class="time">
+
+                            {{ item.start_time }}
+                            –
+                            {{ item.end_time }}
+
+                        </div>
+
+                        <div class="subject">
+
+                            {{ item.timetable.subject.name }}
+
+                        </div>
+
+                        <div class="type">
+
+                            {{ item.timetable.subject.subject_type }}
+
+                        </div>
+
+                    </div>
+
+
+                    {% if item.changed %}
+
+                        <span class="badge changed">
+
+                            🔄 {{ item.change_type }}
+
+                        </span>
+
+                    {% endif %}
+
+
+                </div>
+
+            {% endfor %}
+
+
+        {% else %}
+
+            <p class="empty">
+
+                No classes scheduled for today.
+
+            </p>
+
+        {% endif %}
+
+
+    </div>
+
+
+    <!-- ================================
+         ATTENDANCE WARNING
+    ================================= -->
+
+    <div class="section">
+
+        <h2>
+            ⚠️ Attendance Needs Attention
+        </h2>
+
+
+        {% if below_75 %}
+
+
+            {% for item in below_75 %}
+
+                <div class="warning">
+
+                    <strong>
+                        {{ item.subject.name }}
+                    </strong>
+
+                    —
+
+                    {{ item.subject.subject_type }}
+
+                    <br>
+
+                    Attendance:
+
+                    <strong>
+                        {{ item.percentage }}%
+                    </strong>
+
+                    <br>
+
+                    ⚠️ Attend the next
+
+                    <strong>
+                        {{ item.classes_to_attend }}
+                    </strong>
+
+                    class(es) to reach 75%.
+
+                </div>
+
+            {% endfor %}
+
+
+        {% else %}
+
+            <p class="empty">
+
+                🎉 No subjects are currently below 75%.
+
+            </p>
+
+        {% endif %}
+
+
+    </div>
+
+
+    <!-- ================================
+         SAFE ATTENDANCE
+    ================================= -->
+
+    <div class="section">
+
+        <h2>
+            ✅ Safe Attendance
+        </h2>
+
+
+        {% if safe_subjects %}
+
+
+            {% for item in safe_subjects %}
+
+                <div class="safe">
+
+                    <strong>
+                        {{ item.subject.name }}
+                    </strong>
+
+                    —
+
+                    {{ item.subject.subject_type }}
+
+                    <br>
+
+                    Attendance:
+
+                    <strong>
+                        {{ item.percentage }}%
+                    </strong>
+
+                </div>
+
+            {% endfor %}
+
+
+        {% else %}
+
+            <p class="empty">
+
+                No attendance records yet.
+
+            </p>
+
+        {% endif %}
+
+
+    </div>
+
+
+</div>
+```
+
+</body>
+
+</html>

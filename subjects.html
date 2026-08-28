@@ -1,0 +1,315 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Subjects - Attendance Planner</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #1f2937;
+        }
+
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 25px;
+        }
+
+        .header-content {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1000px;
+            margin: 30px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 11px;
+            margin-top: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 11px 18px;
+            border: none;
+            border-radius: 7px;
+            background: #1f2937;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #111827;
+        }
+
+        .subject {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: #fafafa;
+        }
+         .subject {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.delete-button {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 8px 12px;
+    border-radius: 7px;
+    font-weight: bold;
+}
+
+.delete-button:hover {
+    background: #fecaca;
+}
+
+        .type {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .message {
+            background: #ecfdf5;
+            padding: 12px;
+            border-left: 5px solid #16a34a;
+            margin-bottom: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #1f2937;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="header-content">
+        <h1>College Timetable & Attendance Planner</h1>
+        <p>Subject Management</p>
+    </div>
+</header>
+
+<div class="container">
+
+    <p>
+        <a href="/">← Back to Dashboard</a>
+    </p>
+
+    <!-- ACTIVE SEMESTER -->
+
+    <div class="card">
+
+        <h2>🎓 Active Semester</h2>
+
+        {% if active_semester %}
+
+            <h3>
+                {{ active_semester.name }}
+            </h3>
+
+            <p>
+                Only subjects belonging to this semester are shown below.
+            </p>
+
+        {% else %}
+
+            <p>No active semester found.</p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- MESSAGE -->
+
+    {% if message %}
+
+        <div class="message">
+            <strong>{{ message }}</strong>
+        </div>
+
+    {% endif %}
+
+
+    <!-- ADD SUBJECT -->
+
+    <div class="card">
+
+        <h2>➕ Add Subject</h2>
+
+        <form method="POST">
+
+            <label>
+                Subject Name
+            </label>
+
+            <input
+                type="text"
+                name="name"
+                placeholder="Enter subject name"
+                required
+            >
+
+            <label>
+                Subject Type
+            </label>
+
+            <select name="subject_type" required>
+
+                <option value="">
+                    Select Type
+                </option>
+
+                <option value="Theory">
+                    Theory
+                </option>
+
+                <option value="Lab">
+                    Lab
+                </option>
+
+            </select>
+
+            <button type="submit">
+                Add Subject
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- SUBJECTS -->
+
+    <div class="card">
+
+        <h2>
+            📚 Subjects in {{ active_semester.name }}
+        </h2>
+
+        {% if subjects %}
+
+            {% for subject in subjects %}
+
+    <div class="subject">
+
+        <div>
+            <strong>
+                {{ subject.name }}
+            </strong>
+
+            <div class="type">
+                Type: {{ subject.subject_type }}
+            </div>
+        </div>
+
+        <form
+            method="POST"
+            action="/delete-subject/{{ subject.id }}"
+            onsubmit="return confirm('Are you sure you want to delete this subject?');"
+        >
+
+            <button
+                type="submit"
+                class="delete-button"
+            >
+                🗑️ Delete
+            </button>
+
+        </form>
+
+    </div>
+
+{% endfor %}
+
+        {% else %}
+
+            <p>
+                📭 No subjects added for this semester.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <div class="card">
+
+        <h2>🧭 Navigation</h2>
+
+        <p>
+            <a href="/semesters">
+                🎓 Semesters
+            </a>
+        </p>
+
+        <p>
+            <a href="/timetable">
+                🗓️ Timetable
+            </a>
+        </p>
+
+        <p>
+            <a href="/timetable-changes">
+                🔄 Timetable Changes
+            </a>
+        </p>
+
+        <p>
+            <a href="/today">
+                📅 Today's Classes
+            </a>
+        </p>
+
+        <p>
+            <a href="/attendance">
+                📊 Attendance
+            </a>
+        </p>
+
+        <p>
+            <a href="/planner">
+                🎯 75% Attendance Planner
+            </a>
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+</html>
+

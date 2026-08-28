@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Attendance History</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background: #f4f6f8;
+
+            color: #1f2937;
+
+        }
+
+
+        /* ================================
+           HEADER
+        ================================= */
+
+        header {
+
+            background: #1f2937;
+
+            color: white;
+
+            padding: 28px 20px;
+
+        }
+
+
+        .header-content {
+
+            max-width: 1100px;
+
+            margin: auto;
+
+        }
+
+
+        header h1 {
+
+            margin: 0;
+
+            font-size: 28px;
+
+        }
+
+
+        header p {
+
+            margin: 8px 0 0;
+
+            color: #d1d5db;
+
+        }
+
+
+        /* ================================
+           CONTAINER
+        ================================= */
+
+        .container {
+
+            width: 92%;
+
+            max-width: 1100px;
+
+            margin: 30px auto;
+
+        }
+
+
+        .back {
+
+            display: inline-block;
+
+            margin-bottom: 20px;
+
+            color: #1f2937;
+
+            text-decoration: none;
+
+            font-weight: bold;
+
+        }
+
+
+        .back:hover {
+
+            text-decoration: underline;
+
+        }
+
+
+        /* ================================
+           TITLE
+        ================================= */
+
+        .page-title {
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .page-title h2 {
+
+            margin: 0 0 8px;
+
+            font-size: 27px;
+
+        }
+
+
+        .page-title p {
+
+            margin: 0;
+
+            color: #6b7280;
+
+        }
+
+
+        /* ================================
+           CARD
+        ================================= */
+
+        .card {
+
+            background: white;
+
+            padding: 25px;
+
+            border-radius: 14px;
+
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 3px 12px rgba(0,0,0,0.07);
+
+        }
+
+
+        .card h3 {
+
+            margin-top: 0;
+
+            margin-bottom: 8px;
+
+        }
+
+
+        .description {
+
+            color: #6b7280;
+
+            margin-top: 0;
+
+            margin-bottom: 22px;
+
+        }
+
+
+        /* ================================
+           TABLE
+        ================================= */
+
+        .table-wrapper {
+
+            overflow-x: auto;
+
+        }
+
+
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 700px;
+
+        }
+
+
+        th {
+
+            background: #f3f4f6;
+
+            padding: 14px;
+
+            text-align: left;
+
+            font-size: 14px;
+
+        }
+
+
+        td {
+
+            padding: 14px;
+
+            border-top: 1px solid #e5e7eb;
+
+            vertical-align: middle;
+
+        }
+
+
+        tbody tr:hover td {
+
+            background: #fafafa;
+
+        }
+
+
+        /* ================================
+           SUBJECT
+        ================================= */
+
+        .subject-name {
+
+            font-weight: bold;
+
+        }
+
+
+        .subject-type {
+
+            display: inline-block;
+
+            margin-top: 5px;
+
+            padding: 4px 9px;
+
+            border-radius: 20px;
+
+            background: #f3f4f6;
+
+            color: #4b5563;
+
+            font-size: 12px;
+
+            font-weight: bold;
+
+        }
+
+
+        /* ================================
+           STATUS BADGES
+        ================================= */
+
+        .status {
+
+            display: inline-block;
+
+            padding: 6px 11px;
+
+            border-radius: 20px;
+
+            font-size: 13px;
+
+            font-weight: bold;
+
+        }
+
+
+        .present {
+
+            background: #dcfce7;
+
+            color: #15803d;
+
+        }
+
+
+        .absent {
+
+            background: #fee2e2;
+
+            color: #b91c1c;
+
+        }
+
+
+        /* ================================
+           DELETE
+        ================================= */
+
+        .delete-button {
+
+            padding: 8px 12px;
+
+            border: none;
+
+            border-radius: 7px;
+
+            background: #fee2e2;
+
+            color: #b91c1c;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+
+        .delete-button:hover {
+
+            background: #fecaca;
+
+        }
+
+
+        /* ================================
+           EMPTY
+        ================================= */
+
+        .empty {
+
+            text-align: center;
+
+            padding: 35px;
+
+            background: #f9fafb;
+
+            border-radius: 9px;
+
+            color: #6b7280;
+
+        }
+
+
+        /* ================================
+           NAVIGATION
+        ================================= */
+
+        .navigation {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(180px, 1fr));
+
+            gap: 12px;
+
+        }
+
+
+        .navigation a {
+
+            display: block;
+
+            padding: 13px;
+
+            text-align: center;
+
+            text-decoration: none;
+
+            color: #1f2937;
+
+            background: #f9fafb;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 8px;
+
+            font-weight: bold;
+
+        }
+
+
+        .navigation a:hover {
+
+            background: #f3f4f6;
+
+        }
+
+
+        /* ================================
+           MOBILE
+        ================================= */
+
+        @media (max-width: 700px) {
+
+            .container {
+
+                width: 95%;
+
+                margin-top: 20px;
+
+            }
+
+
+            header h1 {
+
+                font-size: 23px;
+
+            }
+
+
+            .card {
+
+                padding: 18px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div class="header-content">
+
+        <h1>
+            College Timetable & Attendance Planner
+        </h1>
+
+        <p>
+            Review your attendance records.
+        </p>
+
+    </div>
+
+</header>
+
+
+<div class="container">
+
+
+    <a
+        href="/"
+        class="back"
+    >
+        ← Back to Dashboard
+    </a>
+
+
+    <div class="page-title">
+
+        <h2>
+            📊 Attendance History
+        </h2>
+
+        <p>
+            Review and manage your recorded
+            attendance.
+        </p>
+
+    </div>
+
+
+    <!-- ATTENDANCE RECORDS -->
+
+    <div class="card">
+
+        <h3>
+            📋 Attendance Records
+        </h3>
+
+        <p class="description">
+
+            Your recorded Present and Absent
+            attendance entries are shown below.
+
+        </p>
+
+
+        {% if records %}
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Subject
+                            </th>
+
+                            <th>
+                                Type
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        {% for record in records %}
+
+
+                            <tr>
+
+
+                                <td>
+
+                                    {{ record.date }}
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="subject-name">
+
+                                        {{ record.subject.name }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="subject-type">
+
+                                        {{ record.subject.subject_type }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+
+                                    {% if record.status == "Present" %}
+
+                                        <span
+                                            class="status present"
+                                        >
+
+                                            ✅ Present
+
+                                        </span>
+
+                                    {% else %}
+
+                                        <span
+                                            class="status absent"
+                                        >
+
+                                            ❌ Absent
+
+                                        </span>
+
+                                    {% endif %}
+
+
+                                </td>
+
+
+                                <td>
+
+                                    <form
+                                        method="POST"
+                                        action="/delete-attendance/{{ record.id }}"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="delete-button"
+                                        >
+
+                                            🗑️ Delete
+
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+
+                            </tr>
+
+
+                        {% endfor %}
+
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        {% else %}
+
+
+            <div class="empty">
+
+                📭 No attendance records found.
+
+                <br><br>
+
+                Attendance records will appear here
+                after you mark your classes.
+
+            </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <div class="card">
+
+        <h3>
+            🧭 Navigation
+        </h3>
+
+
+        <div class="navigation">
+
+            <a href="/attendance">
+                📊 Attendance Dashboard
+            </a>
+
+            <a href="/today">
+                📅 Today's Classes
+            </a>
+
+            <a href="/timetable">
+                🗓️ Timetable
+            </a>
+
+            <a href="/planner">
+                🎯 75% Planner
+            </a>
+
+            <a href="/">
+                🏠 Home
+            </a>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

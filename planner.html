@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>75% Attendance Planner</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 30px auto;
+        }
+
+        .back {
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: #1f2937;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        th {
+            background: #e5e7eb;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .safe {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .danger {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .none {
+            color: #6b7280;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            width: 140px;
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .progress-bar {
+            height: 100%;
+        }
+
+        @media (max-width: 700px) {
+
+            .container {
+                width: 95%;
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 850px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <h1>
+        🎯 75% Attendance Planner
+    </h1>
+
+</header>
+
+
+<div class="container">
+
+
+    <a href="/" class="back">
+        ← Back to Dashboard
+    </a>
+
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>Subject</th>
+
+                <th>Type</th>
+
+                <th>Total</th>
+
+                <th>Present</th>
+
+                <th>Absent</th>
+
+                <th>Attendance</th>
+
+                <th>Status</th>
+
+                <th>Recommendation</th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+
+            {% for item in planner_data %}
+
+
+            <tr>
+
+
+                <td>
+
+                    {{ item.subject.name }}
+
+                </td>
+
+
+                <td>
+
+                    {{ item.subject.subject_type }}
+
+                </td>
+
+
+                <td>
+
+                    {{ item.total }}
+
+                </td>
+
+
+                <td>
+
+                    {{ item.present }}
+
+                </td>
+
+
+                <td>
+
+                    {{ item.absent }}
+
+                </td>
+
+
+                <td>
+
+                    <strong>
+
+                        {{ item.percentage }}%
+
+                    </strong>
+
+
+                    <div class="progress-container">
+
+                        <div
+                            class="progress-bar"
+                            style="
+                                width: {{ [item.percentage, 100]|min }}%;
+                                background:
+                                {% if item.percentage >= 75 %}
+                                    #22c55e;
+                                {% else %}
+                                    #ef4444;
+                                {% endif %}
+                            "
+                        >
+                        </div>
+
+                    </div>
+
+
+                </td>
+
+
+                <td>
+
+
+                    {% if item.status == "SAFE" %}
+
+                        <span class="safe">
+
+                            ✅ SAFE
+
+                        </span>
+
+
+                    {% elif item.status == "BELOW 75%" %}
+
+                        <span class="danger">
+
+                            ⚠️ BELOW 75%
+
+                        </span>
+
+
+                    {% else %}
+
+                        <span class="none">
+
+                            ℹ️ No Classes Recorded
+
+                        </span>
+
+                    {% endif %}
+
+
+                </td>
+
+
+                <td>
+
+
+                    {% if item.status == "SAFE" %}
+
+                        You can miss
+
+                        <strong>
+
+                            {{ item.classes_can_miss }}
+
+                        </strong>
+
+                        more class(es) and remain
+                        at or above 75%.
+
+
+                    {% elif item.status == "BELOW 75%" %}
+
+                        You need to attend the next
+
+                        <strong>
+
+                            {{ item.classes_to_attend }}
+
+                        </strong>
+
+                        consecutive class(es)
+                        to reach 75%.
+
+
+                    {% else %}
+
+                        Attendance planning will begin
+                        after a class is recorded.
+
+
+                    {% endif %}
+
+
+                </td>
+
+
+            </tr>
+
+
+            {% endfor %}
+
+
+        </tbody>
+
+    </table>
+
+
+</div>
+
+
+</body>
+
+</html>

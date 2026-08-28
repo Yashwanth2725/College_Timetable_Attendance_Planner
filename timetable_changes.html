@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Timetable Change Manager</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background: #f4f6f8;
+
+            color: #1f2937;
+
+        }
+
+
+        /* --------------------------------
+           HEADER
+        -------------------------------- */
+
+        header {
+
+            background: #1f2937;
+
+            color: white;
+
+            padding: 28px 20px;
+
+        }
+
+
+        .header-content {
+
+            max-width: 1100px;
+
+            margin: auto;
+
+        }
+
+
+        header h1 {
+
+            margin: 0;
+
+            font-size: 28px;
+
+        }
+
+
+        header p {
+
+            margin: 8px 0 0;
+
+            color: #d1d5db;
+
+        }
+
+
+        /* --------------------------------
+           MAIN CONTAINER
+        -------------------------------- */
+
+        .container {
+
+            width: 92%;
+
+            max-width: 1100px;
+
+            margin: 30px auto;
+
+        }
+
+
+        /* --------------------------------
+           BACK BUTTON
+        -------------------------------- */
+
+        .back {
+
+            display: inline-block;
+
+            margin-bottom: 20px;
+
+            color: #1f2937;
+
+            text-decoration: none;
+
+            font-weight: bold;
+
+        }
+
+
+        .back:hover {
+
+            text-decoration: underline;
+
+        }
+
+
+        /* --------------------------------
+           PAGE TITLE
+        -------------------------------- */
+
+        .page-title {
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .page-title h2 {
+
+            margin: 0 0 8px;
+
+            font-size: 26px;
+
+        }
+
+
+        .page-title p {
+
+            margin: 0;
+
+            color: #6b7280;
+
+        }
+
+
+        /* --------------------------------
+           MESSAGE
+        -------------------------------- */
+
+        .message {
+
+            background: #ecfdf5;
+
+            border-left: 5px solid #16a34a;
+
+            padding: 14px 16px;
+
+            border-radius: 8px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        /* --------------------------------
+           CARD
+        -------------------------------- */
+
+        .card {
+
+            background: white;
+
+            padding: 25px;
+
+            border-radius: 14px;
+
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 3px 12px rgba(0,0,0,0.07);
+
+        }
+
+
+        .card h3 {
+
+            margin-top: 0;
+
+            margin-bottom: 8px;
+
+            font-size: 21px;
+
+        }
+
+
+        .card-description {
+
+            color: #6b7280;
+
+            margin-top: 0;
+
+            margin-bottom: 22px;
+
+        }
+
+
+        /* --------------------------------
+           FORM
+        -------------------------------- */
+
+        .form-group {
+
+            margin-bottom: 20px;
+
+        }
+
+
+        label {
+
+            display: block;
+
+            font-weight: bold;
+
+            margin-bottom: 7px;
+
+        }
+
+
+        select,
+        input[type="time"],
+        input[type="text"] {
+
+            width: 100%;
+
+            padding: 11px 12px;
+
+            border: 1px solid #d1d5db;
+
+            border-radius: 8px;
+
+            font-size: 15px;
+
+            background: white;
+
+        }
+
+
+        select:focus,
+        input:focus {
+
+            outline: none;
+
+            border-color: #374151;
+
+            box-shadow:
+                0 0 0 2px rgba(55,65,81,0.10);
+
+        }
+
+
+        .help {
+
+            display: block;
+
+            margin-top: 5px;
+
+            font-size: 13px;
+
+            color: #6b7280;
+
+        }
+
+
+        .schedule-title {
+
+            margin-top: 28px;
+
+            margin-bottom: 15px;
+
+            padding-bottom: 8px;
+
+            border-bottom: 1px solid #e5e7eb;
+
+        }
+
+
+        .schedule-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 15px;
+
+        }
+
+
+        /* --------------------------------
+           SAVE BUTTON
+        -------------------------------- */
+
+        .save-button {
+
+            width: 100%;
+
+            margin-top: 10px;
+
+            padding: 13px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #1f2937;
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+
+        .save-button:hover {
+
+            background: #111827;
+
+        }
+
+
+        /* --------------------------------
+           CHANGES TABLE
+        -------------------------------- */
+
+        .table-wrapper {
+
+            overflow-x: auto;
+
+        }
+
+
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 750px;
+
+        }
+
+
+        th {
+
+            background: #f3f4f6;
+
+            text-align: left;
+
+            padding: 13px;
+
+            font-size: 14px;
+
+        }
+
+
+        td {
+
+            padding: 14px 13px;
+
+            border-top: 1px solid #e5e7eb;
+
+            vertical-align: top;
+
+            line-height: 1.5;
+
+        }
+
+
+        tr:hover td {
+
+            background: #fafafa;
+
+        }
+
+
+        /* --------------------------------
+           CHANGE BADGES
+        -------------------------------- */
+
+        .badge {
+
+            display: inline-block;
+
+            padding: 5px 9px;
+
+            border-radius: 20px;
+
+            font-size: 13px;
+
+            font-weight: bold;
+
+        }
+
+
+        .postponed {
+
+            background: #fff7ed;
+
+            color: #c2410c;
+
+        }
+
+
+        .cancelled {
+
+            background: #fef2f2;
+
+            color: #dc2626;
+
+        }
+
+
+        .rescheduled {
+
+            background: #eff6ff;
+
+            color: #1d4ed8;
+
+        }
+
+
+        .shifted {
+
+            background: #f5f3ff;
+
+            color: #6d28d9;
+
+        }
+
+
+        /* --------------------------------
+           DELETE BUTTON
+        -------------------------------- */
+
+        .delete-button {
+
+            padding: 8px 12px;
+
+            border: none;
+
+            border-radius: 7px;
+
+            background: #fee2e2;
+
+            color: #b91c1c;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+
+        .delete-button:hover {
+
+            background: #fecaca;
+
+        }
+
+
+        /* --------------------------------
+           EMPTY STATE
+        -------------------------------- */
+
+        .empty {
+
+            text-align: center;
+
+            padding: 25px;
+
+            color: #6b7280;
+
+            background: #f9fafb;
+
+            border-radius: 8px;
+
+        }
+
+
+        /* --------------------------------
+           NAVIGATION
+        -------------------------------- */
+
+        .navigation {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(170px, 1fr));
+
+            gap: 12px;
+
+        }
+
+
+        .navigation a {
+
+            display: block;
+
+            padding: 13px;
+
+            background: #f9fafb;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 8px;
+
+            text-align: center;
+
+            text-decoration: none;
+
+            color: #1f2937;
+
+            font-weight: bold;
+
+        }
+
+
+        .navigation a:hover {
+
+            background: #f3f4f6;
+
+        }
+
+
+        /* --------------------------------
+           MOBILE
+        -------------------------------- */
+
+        @media (max-width: 700px) {
+
+            .container {
+
+                width: 95%;
+
+                margin-top: 20px;
+
+            }
+
+
+            header h1 {
+
+                font-size: 23px;
+
+            }
+
+
+            .card {
+
+                padding: 18px;
+
+            }
+
+
+            .schedule-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div class="header-content">
+
+        <h1>
+            College Timetable & Attendance Planner
+        </h1>
+
+        <p>
+            Manage your classes, timetable and attendance.
+        </p>
+
+    </div>
+
+</header>
+
+
+<div class="container">
+
+
+    <a
+        href="/"
+        class="back"
+    >
+        ← Back to Dashboard
+    </a>
+
+
+    <div class="page-title">
+
+        <h2>
+            🔄 Timetable Change Manager
+        </h2>
+
+        <p>
+            Manage postponed, cancelled,
+            rescheduled and shifted classes.
+        </p>
+
+    </div>
+
+
+    {% if message %}
+
+        <div class="message">
+
+            <strong>
+                {{ message }}
+            </strong>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- RECORD CHANGE -->
+
+    <div class="card">
+
+        <h3>
+            📝 Record a Timetable Change
+        </h3>
+
+        <p class="card-description">
+
+            Select a class and record what happened
+            to its original schedule.
+
+        </p>
+
+
+        <form
+            method="POST"
+            action="/timetable-changes"
+        >
+
+
+            <div class="form-group">
+
+                <label>
+                    Select Class
+                </label>
+
+                <select
+                    name="timetable_id"
+                    required
+                >
+
+                    <option value="">
+                        -- Select a class --
+                    </option>
+
+
+                    {% for entry in timetable_entries %}
+
+                        <option
+                            value="{{ entry.id }}"
+                        >
+
+                            {{ entry.day }}
+                            -
+                            {{ entry.start_time }}
+                            to
+                            {{ entry.end_time }}
+                            -
+                            {{ entry.subject.name }}
+                            -
+                            {{ entry.subject.subject_type }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Change Type
+                </label>
+
+                <select
+                    name="change_type"
+                    required
+                >
+
+                    <option value="">
+                        -- Select change type --
+                    </option>
+
+                    <option value="Postponed">
+                        Postponed
+                    </option>
+
+                    <option value="Cancelled">
+                        Cancelled
+                    </option>
+
+                    <option value="Rescheduled">
+                        Rescheduled
+                    </option>
+
+                    <option value="Shifted">
+                        Shifted
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <h4 class="schedule-title">
+
+                📅 New Schedule
+
+            </h4>
+
+            <span class="help">
+
+                Required when the class is
+                rescheduled or shifted.
+
+            </span>
+
+
+            <br>
+
+
+            <div class="schedule-grid">
+
+
+                <div class="form-group">
+
+                    <label>
+                        New Day
+                    </label>
+
+                    <select name="new_day">
+
+                        <option value="">
+                            -- Select day --
+                        </option>
+
+                        <option value="Monday">
+                            Monday
+                        </option>
+
+                        <option value="Tuesday">
+                            Tuesday
+                        </option>
+
+                        <option value="Wednesday">
+                            Wednesday
+                        </option>
+
+                        <option value="Thursday">
+                            Thursday
+                        </option>
+
+                        <option value="Friday">
+                            Friday
+                        </option>
+
+                        <option value="Saturday">
+                            Saturday
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        New Start Time
+                    </label>
+
+                    <input
+                        type="time"
+                        name="new_start_time"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        New End Time
+                    </label>
+
+                    <input
+                        type="time"
+                        name="new_end_time"
+                    >
+
+                </div>
+
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Reason
+                </label>
+
+                <input
+                    type="text"
+                    name="reason"
+                    placeholder="Optional reason for the change"
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="save-button"
+            >
+
+                🔄 Save Timetable Change
+
+            </button>
+
+
+        </form>
+
+    </div>
+
+
+    <!-- RECORDED CHANGES -->
+
+    <div class="card">
+
+        <h3>
+            📋 Recorded Timetable Changes
+        </h3>
+
+        <p class="card-description">
+
+            Review and manage your previous
+            timetable changes.
+
+        </p>
+
+
+        {% if changes %}
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Original Class
+                            </th>
+
+                            <th>
+                                Change
+                            </th>
+
+                            <th>
+                                New Schedule
+                            </th>
+
+                            <th>
+                                Reason
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        {% for change in changes %}
+
+
+                            <tr>
+
+
+                                <td>
+
+                                    <strong>
+                                        {{ change.timetable.subject.name }}
+                                    </strong>
+
+                                    <br>
+
+                                    {{ change.timetable.subject.subject_type }}
+
+                                    <br>
+
+                                    {{ change.timetable.day }}
+
+                                    <br>
+
+                                    {{ change.timetable.start_time }}
+                                    -
+                                    {{ change.timetable.end_time }}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if change.change_type == "Postponed" %}
+
+                                        <span
+                                            class="badge postponed"
+                                        >
+                                            Postponed
+                                        </span>
+
+                                    {% elif change.change_type == "Cancelled" %}
+
+                                        <span
+                                            class="badge cancelled"
+                                        >
+                                            Cancelled
+                                        </span>
+
+                                    {% elif change.change_type == "Rescheduled" %}
+
+                                        <span
+                                            class="badge rescheduled"
+                                        >
+                                            Rescheduled
+                                        </span>
+
+                                    {% elif change.change_type == "Shifted" %}
+
+                                        <span
+                                            class="badge shifted"
+                                        >
+                                            Shifted
+                                        </span>
+
+                                    {% else %}
+
+                                        {{ change.change_type }}
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+
+                                    {% if change.new_day %}
+
+                                        <strong>
+                                            {{ change.new_day }}
+                                        </strong>
+
+                                        <br>
+
+                                        {{ change.new_start_time }}
+                                        -
+                                        {{ change.new_end_time }}
+
+                                    {% else %}
+
+                                        <span
+                                            style="color:#6b7280;"
+                                        >
+                                            Not applicable
+                                        </span>
+
+                                    {% endif %}
+
+
+                                </td>
+
+
+                                <td>
+
+
+                                    {% if change.reason %}
+
+                                        {{ change.reason }}
+
+                                    {% else %}
+
+                                        <span
+                                            style="color:#6b7280;"
+                                        >
+                                            No reason provided
+                                        </span>
+
+                                    {% endif %}
+
+
+                                </td>
+
+
+                                <td>
+
+
+                                    <form
+                                        method="POST"
+                                        action="/delete-timetable-change/{{ change.id }}"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="delete-button"
+                                        >
+
+                                            🗑️ Delete
+
+                                        </button>
+
+                                    </form>
+
+
+                                </td>
+
+
+                            </tr>
+
+
+                        {% endfor %}
+
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        {% else %}
+
+
+            <div class="empty">
+
+                📭 No timetable changes recorded yet.
+
+            </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <div class="card">
+
+        <h3>
+            🧭 Navigation
+        </h3>
+
+
+        <div class="navigation">
+
+            <a href="/timetable">
+                🗓️ Timetable
+            </a>
+
+            <a href="/today">
+                📅 Today's Classes
+            </a>
+
+            <a href="/attendance">
+                📊 Attendance
+            </a>
+
+            <a href="/planner">
+                🎯 75% Planner
+            </a>
+
+            <a href="/">
+                🏠 Home
+            </a>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

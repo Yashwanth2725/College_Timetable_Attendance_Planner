@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>College Timetable</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background: #f4f6f8;
+
+            color: #1f2937;
+
+        }
+
+
+        /* ================================
+           HEADER
+        ================================= */
+
+        header {
+
+            background: #1f2937;
+
+            color: white;
+
+            padding: 28px 20px;
+
+        }
+
+
+        .header-content {
+
+            max-width: 1150px;
+
+            margin: auto;
+
+        }
+
+
+        header h1 {
+
+            margin: 0;
+
+            font-size: 28px;
+
+        }
+
+
+        header p {
+
+            margin: 8px 0 0;
+
+            color: #d1d5db;
+
+        }
+
+
+        /* ================================
+           CONTAINER
+        ================================= */
+
+        .container {
+
+            width: 92%;
+
+            max-width: 1150px;
+
+            margin: 30px auto;
+
+        }
+
+
+        .back {
+
+            display: inline-block;
+
+            margin-bottom: 20px;
+
+            color: #1f2937;
+
+            text-decoration: none;
+
+            font-weight: bold;
+
+        }
+
+
+        .back:hover {
+
+            text-decoration: underline;
+
+        }
+
+
+        /* ================================
+           TITLE
+        ================================= */
+
+        .page-title {
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .page-title h2 {
+
+            margin: 0 0 8px;
+
+            font-size: 27px;
+
+        }
+
+
+        .page-title p {
+
+            margin: 0;
+
+            color: #6b7280;
+
+        }
+
+
+        /* ================================
+           CARDS
+        ================================= */
+
+        .card {
+
+            background: white;
+
+            padding: 25px;
+
+            margin-bottom: 25px;
+
+            border-radius: 14px;
+
+            box-shadow:
+                0 3px 12px rgba(0,0,0,0.07);
+
+        }
+
+
+        .card h3 {
+
+            margin-top: 0;
+
+            margin-bottom: 8px;
+
+        }
+
+
+        .description {
+
+            color: #6b7280;
+
+            margin-top: 0;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        /* ================================
+           MESSAGE
+        ================================= */
+
+        .message {
+
+            background: #ecfdf5;
+
+            border-left: 5px solid #16a34a;
+
+            padding: 14px 16px;
+
+            border-radius: 8px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        /* ================================
+           LOAD BUTTON
+        ================================= */
+
+        .load-button {
+
+            width: 100%;
+
+            padding: 14px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #1f2937;
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+
+        .load-button:hover {
+
+            background: #111827;
+
+        }
+
+
+        /* ================================
+           FORM
+        ================================= */
+
+        .form-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 18px;
+
+        }
+
+
+        .form-group {
+
+            margin-bottom: 5px;
+
+        }
+
+
+        .form-group.full {
+
+            grid-column: 1 / -1;
+
+        }
+
+
+        label {
+
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-weight: bold;
+
+        }
+
+
+        select,
+        input[type="time"] {
+
+            width: 100%;
+
+            padding: 11px 12px;
+
+            border: 1px solid #d1d5db;
+
+            border-radius: 8px;
+
+            background: white;
+
+            font-size: 15px;
+
+        }
+
+
+        select:focus,
+        input:focus {
+
+            outline: none;
+
+            border-color: #374151;
+
+            box-shadow:
+                0 0 0 2px rgba(55,65,81,0.10);
+
+        }
+
+
+        .add-button {
+
+            width: 100%;
+
+            margin-top: 18px;
+
+            padding: 13px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #374151;
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+
+        .add-button:hover {
+
+            background: #1f2937;
+
+        }
+
+
+        /* ================================
+           TIMETABLE
+        ================================= */
+
+        .table-wrapper {
+
+            overflow-x: auto;
+
+        }
+
+
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 800px;
+
+        }
+
+
+        th {
+
+            padding: 14px;
+
+            text-align: left;
+
+            background: #f3f4f6;
+
+            font-size: 14px;
+
+        }
+
+
+        td {
+
+            padding: 14px;
+
+            border-top: 1px solid #e5e7eb;
+
+            vertical-align: middle;
+
+        }
+
+
+        tbody tr:hover td {
+
+            background: #fafafa;
+
+        }
+
+
+        .subject-name {
+
+            font-weight: bold;
+
+        }
+
+
+        .subject-type {
+
+            display: inline-block;
+
+            margin-top: 5px;
+
+            padding: 4px 8px;
+
+            background: #f3f4f6;
+
+            border-radius: 12px;
+
+            font-size: 12px;
+
+            color: #4b5563;
+
+        }
+
+
+        .day-badge {
+
+            font-weight: bold;
+
+        }
+
+
+        .time {
+
+            white-space: nowrap;
+
+            color: #4b5563;
+
+        }
+
+
+        /* ================================
+           DELETE
+        ================================= */
+
+        .delete-button {
+
+            padding: 8px 12px;
+
+            border: none;
+
+            border-radius: 7px;
+
+            background: #fee2e2;
+
+            color: #b91c1c;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+
+        .delete-button:hover {
+
+            background: #fecaca;
+
+        }
+
+
+        /* ================================
+           EMPTY
+        ================================= */
+
+        .empty {
+
+            text-align: center;
+
+            padding: 28px;
+
+            background: #f9fafb;
+
+            border-radius: 9px;
+
+            color: #6b7280;
+
+        }
+
+
+        /* ================================
+           NAVIGATION
+        ================================= */
+
+        .navigation {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(180px, 1fr));
+
+            gap: 12px;
+
+        }
+
+
+        .navigation a {
+
+            display: block;
+
+            padding: 13px;
+
+            text-align: center;
+
+            text-decoration: none;
+
+            color: #1f2937;
+
+            background: #f9fafb;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 8px;
+
+            font-weight: bold;
+
+        }
+
+
+        .navigation a:hover {
+
+            background: #f3f4f6;
+
+        }
+
+
+        /* ================================
+           MOBILE
+        ================================= */
+
+        @media (max-width: 700px) {
+
+            .container {
+
+                width: 95%;
+
+                margin-top: 20px;
+
+            }
+
+
+            header h1 {
+
+                font-size: 23px;
+
+            }
+
+
+            .form-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            .form-group.full {
+
+                grid-column: auto;
+
+            }
+
+
+            .card {
+
+                padding: 18px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div class="header-content">
+
+        <h1>
+            College Timetable & Attendance Planner
+        </h1>
+
+        <p>
+            Manage your weekly schedule and classes.
+        </p>
+
+    </div>
+
+</header>
+
+
+<div class="container">
+
+
+    <a
+        href="/"
+        class="back"
+    >
+        ← Back to Dashboard
+    </a>
+
+
+    <div class="page-title">
+
+        <h2>
+            🗓️ Timetable Management
+        </h2>
+
+        <p>
+            Manage your weekly college timetable
+            and individual class entries.
+        </p>
+
+    </div>
+
+
+    {% if message %}
+
+        <div class="message">
+
+            <strong>
+                {{ message }}
+            </strong>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- LOAD WEEKLY TIMETABLE -->
+
+       <!-- MANUAL ENTRY -->
+
+    <div class="card">
+
+        <h3>
+            ➕ Add Individual Timetable Entry
+        </h3>
+
+        <p class="description">
+
+            Add a class manually by selecting
+            the subject, day and time.
+
+        </p>
+
+
+        <form method="POST">
+
+
+            <div class="form-grid">
+
+
+                <div class="form-group full">
+
+                    <label for="subject_id">
+                        Subject
+                    </label>
+
+                    <select
+                        id="subject_id"
+                        name="subject_id"
+                    >
+
+                        <option value="">
+                            Select Subject
+                        </option>
+
+
+                        {% for subject in subjects %}
+
+                            <option
+                                value="{{ subject.id }}"
+                            >
+
+                                {{ subject.name }}
+                                -
+                                {{ subject.subject_type }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="day">
+                        Day
+                    </label>
+
+                    <select
+                        id="day"
+                        name="day"
+                    >
+
+                        <option value="">
+                            Select Day
+                        </option>
+
+                        <option value="Monday">
+                            Monday
+                        </option>
+
+                        <option value="Tuesday">
+                            Tuesday
+                        </option>
+
+                        <option value="Wednesday">
+                            Wednesday
+                        </option>
+
+                        <option value="Thursday">
+                            Thursday
+                        </option>
+
+                        <option value="Friday">
+                            Friday
+                        </option>
+
+                        <option value="Saturday">
+                            Saturday
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="start_time">
+                        Start Time
+                    </label>
+
+                    <input
+                        type="time"
+                        id="start_time"
+                        name="start_time"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="end_time">
+                        End Time
+                    </label>
+
+                    <input
+                        type="time"
+                        id="end_time"
+                        name="end_time"
+                    >
+
+                </div>
+
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="add-button"
+            >
+
+                ➕ Add to Timetable
+
+            </button>
+
+
+        </form>
+
+    </div>
+
+
+    <!-- CURRENT TIMETABLE -->
+
+    <div class="card">
+
+        <h3>
+            📋 Current Timetable
+        </h3>
+
+        <p class="description">
+
+            Your currently saved weekly classes.
+
+        </p>
+
+
+        {% if timetable %}
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Day
+                            </th>
+
+                            <th>
+                                Time
+                            </th>
+
+                            <th>
+                                Subject
+                            </th>
+
+                            <th>
+                                Type
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        {% for entry in timetable %}
+
+
+                            <tr>
+
+
+                                <td>
+
+                                    <span class="day-badge">
+
+                                        {{ entry.day }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="time">
+
+                                        {{ entry.start_time }}
+                                        -
+                                        {{ entry.end_time }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="subject-name">
+
+                                        {{ entry.subject.name }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="subject-type">
+
+                                        {{ entry.subject.subject_type }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <form
+                                        method="POST"
+                                        action="/delete-timetable/{{ entry.id }}"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="delete-button"
+                                        >
+
+                                            🗑️ Delete
+
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+
+                            </tr>
+
+
+                        {% endfor %}
+
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+        {% else %}
+
+
+            <div class="empty">
+
+                📭 No timetable entries added yet.
+
+            </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <div class="card">
+
+        <h3>
+            🧭 Navigation
+        </h3>
+
+
+        <div class="navigation">
+
+            <a href="/subjects">
+                📚 Subjects
+            </a>
+
+            <a href="/timetable-changes">
+                🔄 Timetable Changes
+            </a>
+
+            <a href="/today">
+                📅 Today's Classes
+            </a>
+
+            <a href="/planner">
+                🎯 75% Planner
+            </a>
+
+            <a href="/">
+                🏠 Home
+            </a>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>
