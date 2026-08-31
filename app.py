@@ -14,8 +14,8 @@ from config import Config
 
 app = Flask(
     __name__,
-    template_folder=".",
-    static_folder="static"
+    template_folder="app/templates",
+    static_folder="app/static"
 )
 
 app.config.from_object(Config)
@@ -152,6 +152,12 @@ class TimetableChange(db.Model):
         nullable=False
     )
 
+    # Date on which the original timetable class is affected.
+    change_date = db.Column(
+        db.String(10),
+        nullable=True
+    )
+
     change_type = db.Column(
         db.String(20),
         nullable=False
@@ -198,6 +204,58 @@ DAY_ORDER = {
 
 
 # ============================================================
+# DATABASE COMPATIBILITY
+# ============================================================
+
+def ensure_database_columns():
+
+    """
+    Adds the new change_date column to an existing
+    TimetableChange table if it does not already exist.
+
+    This allows the updated application to work with
+    an existing SQLite or PostgreSQL database.
+    """
+
+    inspector = db.inspect(db.engine)
+
+    if "timetable_change" not in inspector.get_table_names():
+        return
+
+    columns = [
+        column["name"]
+        for column in inspector.get_columns(
+            "timetable_change"
+        )
+    ]
+
+    if "change_date" in columns:
+        return
+
+    dialect = db.engine.dialect.name
+
+    with db.engine.begin() as connection:
+
+        if dialect == "sqlite":
+
+            connection.exec_driver_sql(
+                """
+                ALTER TABLE timetable_change
+                ADD COLUMN change_date VARCHAR(10)
+                """
+            )
+
+        elif dialect == "postgresql":
+
+            connection.exec_driver_sql(
+                """
+                ALTER TABLE timetable_change
+                ADD COLUMN change_date VARCHAR(10)
+                """
+            )
+
+
+# ============================================================
 # GET ACTIVE SEMESTER
 # ============================================================
 
@@ -238,9 +296,59 @@ def get_active_semester():
 # EFFECTIVE TIMETABLE
 # ============================================================
 
-def get_effective_classes(day):
+def get_effective_classes(
+    selected_date
+):
+
+    """
+    Returns the classes that actually apply to a
+    particular calendar date.
+
+    This is intentionally date-based rather than
+    weekday-only.
+
+    Example:
+
+    Saturday 2026-08-22:
+        Class cancelled -> it will not appear.
+
+    Saturday 2026-08-29:
+        Normal timetable -> class appears normally.
+    """
 
     active_semester = get_active_semester()
+
+    # Accept either a datetime.date object or a
+    # YYYY-MM-DD string.
+    if hasattr(
+        selected_date,
+        "strftime"
+    ):
+
+        target_date = selected_date.strftime(
+            "%Y-%m-%d"
+        )
+
+        target_day = selected_date.strftime(
+            "%A"
+        )
+
+    else:
+
+        target_date = str(
+            selected_date
+        )
+
+        try:
+
+            target_day = datetime.strptime(
+                target_date,
+                "%Y-%m-%d"
+            ).strftime("%A")
+
+        except ValueError:
+
+            return []
 
     entries = (
         Timetable.query
@@ -255,66 +363,84 @@ def get_effective_classes(day):
 
     for entry in entries:
 
-        latest_change = (
+        # ----------------------------------------------------
+        # CHANGES FOR THIS EXACT DATE
+        # ----------------------------------------------------
+
+        date_changes = (
             TimetableChange.query
             .filter_by(
-                timetable_id=entry.id
+                timetable_id=entry.id,
+                change_date=target_date
             )
             .order_by(
                 TimetableChange.id.desc()
             )
-            .first()
+            .all()
         )
 
         # ----------------------------------------------------
-        # NO CHANGE
+        # NEW DATE-AWARE SYSTEM
         # ----------------------------------------------------
 
-        if not latest_change:
+        if date_changes:
 
-            if entry.day == day:
+            latest_change = date_changes[0]
 
-                effective_classes.append({
-                    "timetable": entry,
-                    "day": entry.day,
-                    "start_time": entry.start_time,
-                    "end_time": entry.end_time,
-                    "changed": False,
-                    "change_type": None
-                })
+            # Cancelled / postponed on this date
+            if latest_change.change_type in [
+                "Cancelled",
+                "Postponed"
+            ]:
 
-            continue
+                continue
+
+            # Rescheduled / shifted on this date
+            if latest_change.change_type in [
+                "Rescheduled",
+                "Shifted"
+            ]:
+
+                # If the new day is provided, the class
+                # is displayed on that day for this
+                # date-based entry.
+                if latest_change.new_day == target_day:
+
+                    effective_classes.append({
+                        "timetable": entry,
+                        "day": latest_change.new_day,
+                        "start_time":
+                            latest_change.new_start_time,
+                        "end_time":
+                            latest_change.new_end_time,
+                        "changed": True,
+                        "change_type":
+                            latest_change.change_type
+                    })
+
+                continue
 
         # ----------------------------------------------------
-        # CANCELLED / POSTPONED
+        # OLD CHANGE RECORDS
+        #
+        # Existing changes created before this update may
+        # have no change_date.
+        #
+        # We only treat them as active when they are
+        # explicitly dated. This prevents an old cancellation
+        # from incorrectly cancelling every future Saturday.
         # ----------------------------------------------------
 
-        if latest_change.change_type in [
-            "Cancelled",
-            "Postponed"
-        ]:
+        if target_day == entry.day:
 
-            continue
-
-        # ----------------------------------------------------
-        # RESCHEDULED / SHIFTED
-        # ----------------------------------------------------
-
-        if latest_change.change_type in [
-            "Rescheduled",
-            "Shifted"
-        ]:
-
-            if latest_change.new_day == day:
-
-                effective_classes.append({
-                    "timetable": entry,
-                    "day": latest_change.new_day,
-                    "start_time": latest_change.new_start_time,
-                    "end_time": latest_change.new_end_time,
-                    "changed": True,
-                    "change_type": latest_change.change_type
-                })
+            effective_classes.append({
+                "timetable": entry,
+                "day": entry.day,
+                "start_time": entry.start_time,
+                "end_time": entry.end_time,
+                "changed": False,
+                "change_type": None
+            })
 
     effective_classes.sort(
         key=lambda item: item["start_time"]
@@ -332,14 +458,18 @@ def home():
 
     current_date = datetime.now()
 
-    today_name = current_date.strftime("%A")
+    today_name = current_date.strftime(
+        "%A"
+    )
 
-    today_date = current_date.strftime("%Y-%m-%d")
+    today_date = current_date.strftime(
+        "%Y-%m-%d"
+    )
 
     active_semester = get_active_semester()
 
     today_classes = get_effective_classes(
-        today_name
+        today_date
     )
 
     records = (
@@ -422,10 +552,14 @@ def home():
                 "total": total,
                 "present": present,
                 "absent": absent,
-                "percentage": round(percentage, 2),
+                "percentage": round(
+                    percentage,
+                    2
+                ),
                 "status": "SAFE",
                 "classes_to_attend": 0,
-                "classes_can_miss": classes_can_miss
+                "classes_can_miss":
+                    classes_can_miss
             }
 
             safe_subjects.append(info)
@@ -446,9 +580,13 @@ def home():
                 "total": total,
                 "present": present,
                 "absent": absent,
-                "percentage": round(percentage, 2),
+                "percentage": round(
+                    percentage,
+                    2
+                ),
                 "status": "BELOW 75%",
-                "classes_to_attend": classes_to_attend,
+                "classes_to_attend":
+                    classes_to_attend,
                 "classes_can_miss": 0
             }
 
@@ -485,6 +623,10 @@ def semesters():
 
     if request.method == "POST":
 
+        # IMPORTANT:
+        # This matches name="semester_name"
+        # in semesters.html.
+
         semester_name = request.form.get(
             "semester_name",
             ""
@@ -492,7 +634,9 @@ def semesters():
 
         if not semester_name:
 
-            message = "Please enter a semester name."
+            message = (
+                "Please enter a semester name."
+            )
 
         else:
 
@@ -502,7 +646,9 @@ def semesters():
 
             if existing:
 
-                message = "This semester already exists."
+                message = (
+                    "This semester already exists."
+                )
 
             else:
 
@@ -511,15 +657,21 @@ def semesters():
                     is_active=False
                 )
 
-                db.session.add(new_semester)
+                db.session.add(
+                    new_semester
+                )
 
                 db.session.commit()
 
-                message = "Semester added successfully!"
+                message = (
+                    "Semester added successfully!"
+                )
 
     all_semesters = (
         Semester.query
-        .order_by(Semester.id)
+        .order_by(
+            Semester.id
+        )
         .all()
     )
 
@@ -554,6 +706,78 @@ def set_active_semester(semester_id):
         item.is_active = False
 
     semester.is_active = True
+
+    db.session.commit()
+
+    return redirect(
+        url_for("semesters")
+    )
+
+
+# ============================================================
+# DELETE SEMESTER
+# ============================================================
+
+@app.route(
+    "/delete-semester/<int:semester_id>",
+    methods=["POST"]
+)
+def delete_semester(semester_id):
+
+    semester = Semester.query.get_or_404(
+        semester_id
+    )
+
+    # Prevent deleting the active semester.
+    if semester.is_active:
+
+        return redirect(
+            url_for("semesters")
+        )
+
+    subjects = Subject.query.filter_by(
+        semester_id=semester.id
+    ).all()
+
+    for subject in subjects:
+
+        timetable_entries = (
+            Timetable.query
+            .filter_by(
+                subject_id=subject.id
+            )
+            .all()
+        )
+
+        for entry in timetable_entries:
+
+            TimetableChange.query.filter_by(
+                timetable_id=entry.id
+            ).delete(
+                synchronize_session=False
+            )
+
+        Attendance.query.filter_by(
+            subject_id=subject.id
+        ).delete(
+            synchronize_session=False
+        )
+
+        Timetable.query.filter_by(
+            subject_id=subject.id
+        ).delete(
+            synchronize_session=False
+        )
+
+    Subject.query.filter_by(
+        semester_id=semester.id
+    ).delete(
+        synchronize_session=False
+    )
+
+    db.session.delete(
+        semester
+    )
 
     db.session.commit()
 
@@ -618,11 +842,15 @@ def subjects():
                     semester_id=active_semester.id
                 )
 
-                db.session.add(new_subject)
+                db.session.add(
+                    new_subject
+                )
 
                 db.session.commit()
 
-                message = "Subject added successfully!"
+                message = (
+                    "Subject added successfully!"
+                )
 
     all_subjects = (
         Subject.query
@@ -689,7 +917,9 @@ def delete_subject(subject_id):
         synchronize_session=False
     )
 
-    db.session.delete(subject)
+    db.session.delete(
+        subject
+    )
 
     db.session.commit()
 
@@ -777,23 +1007,30 @@ def timetable():
 
             if subject_id_int is not None:
 
-                selected_subject = Subject.query.filter_by(
-                    id=subject_id_int,
-                    semester_id=active_semester.id
-                ).first()
+                selected_subject = (
+                    Subject.query.filter_by(
+                        id=subject_id_int,
+                        semester_id=active_semester.id
+                    ).first()
+                )
 
             if not selected_subject:
 
-                message = "Invalid subject selected."
+                message = (
+                    "Invalid subject selected."
+                )
 
             else:
 
-                existing = Timetable.query.filter_by(
-                    subject_id=selected_subject.id,
-                    day=day,
-                    start_time=start_time,
-                    end_time=end_time
-                ).first()
+                existing = (
+                    Timetable.query.filter_by(
+                        subject_id=
+                            selected_subject.id,
+                        day=day,
+                        start_time=start_time,
+                        end_time=end_time
+                    ).first()
+                )
 
                 if existing:
 
@@ -804,13 +1041,16 @@ def timetable():
                 else:
 
                     entry = Timetable(
-                        subject_id=selected_subject.id,
+                        subject_id=
+                            selected_subject.id,
                         day=day,
                         start_time=start_time,
                         end_time=end_time
                     )
 
-                    db.session.add(entry)
+                    db.session.add(
+                        entry
+                    )
 
                     db.session.commit()
 
@@ -822,7 +1062,8 @@ def timetable():
         Timetable.query
         .join(Subject)
         .filter(
-            Subject.semester_id == active_semester.id
+            Subject.semester_id ==
+                active_semester.id
         )
         .all()
     )
@@ -862,7 +1103,10 @@ def delete_timetable(entry_id):
 
     active_semester = get_active_semester()
 
-    if entry.subject.semester_id != active_semester.id:
+    if (
+        entry.subject.semester_id
+        != active_semester.id
+    ):
 
         return redirect(
             url_for("timetable")
@@ -874,7 +1118,9 @@ def delete_timetable(entry_id):
         synchronize_session=False
     )
 
-    db.session.delete(entry)
+    db.session.delete(
+        entry
+    )
 
     db.session.commit()
 
@@ -903,7 +1149,7 @@ def today():
     active_semester = get_active_semester()
 
     effective_classes = get_effective_classes(
-        today_name
+        today_date
     )
 
     today_classes = []
@@ -921,7 +1167,8 @@ def today():
             "start_time": item["start_time"],
             "end_time": item["end_time"],
             "changed": item["changed"],
-            "change_type": item["change_type"]
+            "change_type":
+                item["change_type"]
         })
 
         record = Attendance.query.filter_by(
@@ -970,7 +1217,10 @@ def mark_attendance(
 
     active_semester = get_active_semester()
 
-    if entry.subject.semester_id != active_semester.id:
+    if (
+        entry.subject.semester_id
+        != active_semester.id
+    ):
 
         return redirect(
             url_for("today")
@@ -989,16 +1239,13 @@ def mark_attendance(
         "%Y-%m-%d"
     )
 
-    today_name = datetime.now().strftime(
-        "%A"
-    )
-
     effective_classes = get_effective_classes(
-        today_name
+        today_date
     )
 
     valid_class = any(
-        item["timetable"].id == timetable_id
+        item["timetable"].id ==
+            timetable_id
         for item in effective_classes
     )
 
@@ -1025,7 +1272,9 @@ def mark_attendance(
             status=status
         )
 
-        db.session.add(record)
+        db.session.add(
+            record
+        )
 
     db.session.commit()
 
@@ -1104,16 +1353,12 @@ def attendance_entry():
             message="Invalid date."
         )
 
-    selected_day = attendance_date.strftime(
-        "%A"
-    )
-
     # --------------------------------------------------------
-    # GET EFFECTIVE CLASSES
+    # GET EFFECTIVE CLASSES FOR EXACT DATE
     # --------------------------------------------------------
 
     effective_classes = get_effective_classes(
-        selected_day
+        attendance_date
     )
 
     # --------------------------------------------------------
@@ -1127,20 +1372,13 @@ def attendance_entry():
             active_semester=active_semester,
             classes=[],
             selected_date=selected_date,
-            message="No classes scheduled for this date."
+            message=(
+                "No classes scheduled for this date."
+            )
         )
 
     # --------------------------------------------------------
-    # CONVERT EFFECTIVE CLASS DICTIONARIES
-    #
-    # The HTML template expects:
-    #
-    # entry.subject.name
-    # entry.subject.subject_type
-    # entry.start_time
-    # entry.end_time
-    #
-    # So we create temporary display objects here.
+    # CONVERT TO DISPLAY OBJECTS
     # --------------------------------------------------------
 
     display_classes = []
@@ -1151,13 +1389,17 @@ def attendance_entry():
 
         display_entry = SimpleNamespace(
             id=original_entry.id,
-            subject_id=original_entry.subject_id,
+            subject_id=
+                original_entry.subject_id,
             subject=original_entry.subject,
             day=item["day"],
-            start_time=item["start_time"],
-            end_time=item["end_time"],
+            start_time=
+                item["start_time"],
+            end_time=
+                item["end_time"],
             changed=item["changed"],
-            change_type=item["change_type"]
+            change_type=
+                item["change_type"]
         )
 
         display_classes.append(
@@ -1195,8 +1437,6 @@ def attendance_entry():
 
         # ----------------------------------------------------
         # CANCELLED / POSTPONED
-        #
-        # These should NOT become attendance records.
         # ----------------------------------------------------
 
         if status in [
@@ -1204,10 +1444,13 @@ def attendance_entry():
             "Postponed"
         ]:
 
-            existing_record = Attendance.query.filter_by(
-                subject_id=entry.subject_id,
-                date=selected_date
-            ).first()
+            existing_record = (
+                Attendance.query.filter_by(
+                    subject_id=
+                        entry.subject_id,
+                    date=selected_date
+                ).first()
+            )
 
             if existing_record:
 
@@ -1218,7 +1461,7 @@ def attendance_entry():
             continue
 
         # ----------------------------------------------------
-        # ONLY PRESENT / ABSENT ARE SAVED
+        # ONLY PRESENT / ABSENT SAVED
         # ----------------------------------------------------
 
         if status not in [
@@ -1232,10 +1475,12 @@ def attendance_entry():
         # CHECK EXISTING RECORD
         # ----------------------------------------------------
 
-        existing_record = Attendance.query.filter_by(
-            subject_id=entry.subject_id,
-            date=selected_date
-        ).first()
+        existing_record = (
+            Attendance.query.filter_by(
+                subject_id=entry.subject_id,
+                date=selected_date
+            ).first()
+        )
 
         if existing_record:
 
@@ -1244,7 +1489,8 @@ def attendance_entry():
         else:
 
             new_record = Attendance(
-                subject_id=entry.subject_id,
+                subject_id=
+                    entry.subject_id,
                 date=selected_date,
                 status=status
             )
@@ -1255,16 +1501,14 @@ def attendance_entry():
 
     db.session.commit()
 
-    # --------------------------------------------------------
-    # SHOW SAVED PAGE
-    # --------------------------------------------------------
-
     return render_template(
         "attendance_entry.html",
         active_semester=active_semester,
         classes=display_classes,
         selected_date=selected_date,
-        message="Attendance saved successfully!"
+        message=(
+            "Attendance saved successfully!"
+        )
     )
 
 
@@ -1323,7 +1567,8 @@ def attendance():
             "subject": subject,
             "classes": classes,
             "present": present,
-            "absent": classes - present,
+            "absent":
+                classes - present,
             "percentage": round(
                 percentage,
                 2
@@ -1331,7 +1576,8 @@ def attendance():
         })
 
     overall_percentage = (
-        (total_present / total_classes) * 100
+        (total_present /
+         total_classes) * 100
         if total_classes > 0
         else 0
     )
@@ -1362,7 +1608,8 @@ def attendance_history():
         Attendance.query
         .join(Subject)
         .filter(
-            Subject.semester_id == active_semester.id
+            Subject.semester_id ==
+                active_semester.id
         )
         .order_by(
             Attendance.date.desc(),
@@ -1394,13 +1641,18 @@ def delete_attendance(record_id):
 
     active_semester = get_active_semester()
 
-    if record.subject.semester_id != active_semester.id:
+    if (
+        record.subject.semester_id
+        != active_semester.id
+    ):
 
         return redirect(
             url_for("attendance_history")
         )
 
-    db.session.delete(record)
+    db.session.delete(
+        record
+    )
 
     db.session.commit()
 
@@ -1456,7 +1708,8 @@ def planner():
                 "present": 0,
                 "absent": 0,
                 "percentage": 0,
-                "status": "No Classes Recorded",
+                "status":
+                    "No Classes Recorded",
                 "classes_to_attend": 0,
                 "classes_can_miss": 0
             })
@@ -1501,13 +1754,13 @@ def planner():
             "total": total,
             "present": present,
             "absent": absent,
-            "percentage": round(
-                percentage,
-                2
-            ),
+            "percentage":
+                round(percentage, 2),
             "status": status,
-            "classes_to_attend": classes_to_attend,
-            "classes_can_miss": classes_can_miss
+            "classes_to_attend":
+                classes_to_attend,
+            "classes_can_miss":
+                classes_can_miss
         })
 
     return render_template(
@@ -1535,7 +1788,8 @@ def timetable_changes():
         Timetable.query
         .join(Subject)
         .filter(
-            Subject.semester_id == active_semester.id
+            Subject.semester_id ==
+                active_semester.id
         )
         .order_by(
             Timetable.id
@@ -1548,6 +1802,11 @@ def timetable_changes():
         timetable_id = request.form.get(
             "timetable_id"
         )
+
+        change_date = request.form.get(
+            "change_date",
+            ""
+        ).strip()
 
         change_type = request.form.get(
             "change_type",
@@ -1574,11 +1833,15 @@ def timetable_changes():
             ""
         ).strip()
 
-        if not timetable_id or not change_type:
+        if (
+            not timetable_id
+            or not change_date
+            or not change_type
+        ):
 
             message = (
-                "Please select a class "
-                "and change type."
+                "Please select the class, "
+                "date and change type."
             )
 
         else:
@@ -1597,8 +1860,10 @@ def timetable_changes():
 
             if timetable_id_int is not None:
 
-                timetable_entry = Timetable.query.get(
-                    timetable_id_int
+                timetable_entry = (
+                    Timetable.query.get(
+                        timetable_id_int
+                    )
                 )
 
             if not timetable_entry:
@@ -1644,15 +1909,23 @@ def timetable_changes():
                 else:
 
                     change = TimetableChange(
-                        timetable_id=timetable_entry.id,
-                        change_type=change_type,
+                        timetable_id=
+                            timetable_entry.id,
+                        change_date=
+                            change_date,
+                        change_type=
+                            change_type,
                         new_day=new_day,
-                        new_start_time=new_start_time,
-                        new_end_time=new_end_time,
+                        new_start_time=
+                            new_start_time,
+                        new_end_time=
+                            new_end_time,
                         reason=reason
                     )
 
-                    db.session.add(change)
+                    db.session.add(
+                        change
+                    )
 
                     db.session.commit()
 
@@ -1667,12 +1940,18 @@ def timetable_changes():
             ]:
 
                 change = TimetableChange(
-                    timetable_id=timetable_entry.id,
-                    change_type=change_type,
+                    timetable_id=
+                        timetable_entry.id,
+                    change_date=
+                        change_date,
+                    change_type=
+                        change_type,
                     reason=reason
                 )
 
-                db.session.add(change)
+                db.session.add(
+                    change
+                )
 
                 db.session.commit()
 
@@ -1692,7 +1971,8 @@ def timetable_changes():
         .join(Timetable)
         .join(Subject)
         .filter(
-            Subject.semester_id == active_semester.id
+            Subject.semester_id ==
+                active_semester.id
         )
         .order_by(
             TimetableChange.id.desc()
@@ -1734,7 +2014,9 @@ def delete_timetable_change(change_id):
             url_for("timetable_changes")
         )
 
-    db.session.delete(change)
+    db.session.delete(
+        change
+    )
 
     db.session.commit()
 
@@ -1751,6 +2033,8 @@ with app.app_context():
 
     db.create_all()
 
+    ensure_database_columns()
+
     get_active_semester()
 
 
@@ -1761,7 +2045,7 @@ with app.app_context():
 if __name__ == "__main__":
 
     app.run(
-    host="0.0.0.0",
-    port=5000,
-    debug=True
-)
+        host="0.0.0.0",
+        port=5000,
+        debug=True
+    )
