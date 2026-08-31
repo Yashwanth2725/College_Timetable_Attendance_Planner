@@ -4,458 +4,390 @@
 
 <head>
 
-```
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<title>Attendance Entry</title>
+    <title>Attendance Entry</title>
 
-<style>
 
-    * {
-        box-sizing: border-box;
-    }
+    <style>
 
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #f4f6f8;
-        color: #1f2937;
-    }
-
-    header {
-        background: #1f2937;
-        color: white;
-        padding: 28px 20px;
-    }
-
-    .header-content {
-        max-width: 1000px;
-        margin: auto;
-    }
-
-    header h1 {
-        margin: 0;
-        font-size: 28px;
-    }
-
-    header p {
-        margin: 8px 0 0;
-        color: #d1d5db;
-    }
-
-    .container {
-        width: 92%;
-        max-width: 1000px;
-        margin: 30px auto;
-    }
-
-    .back {
-        display: inline-block;
-        margin-bottom: 20px;
-        color: #1f2937;
-        text-decoration: none;
-        font-weight: bold;
-    }
-
-    .back:hover {
-        text-decoration: underline;
-    }
-
-    .card {
-        background: white;
-        padding: 25px;
-        border-radius: 12px;
-        margin-bottom: 25px;
-        box-shadow: 0 3px 12px rgba(0,0,0,0.07);
-    }
-
-    .card h2 {
-        margin-top: 0;
-    }
-
-    .semester {
-        background: #f3f4f6;
-        padding: 12px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-
-    .date-info {
-        color: #6b7280;
-        margin-top: 8px;
-        margin-bottom: 20px;
-    }
-
-    label.main-label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
-
-    input[type="date"] {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 15px;
-    }
-
-    button {
-        padding: 12px 18px;
-        border: none;
-        border-radius: 8px;
-        background: #1f2937;
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    button:hover {
-        background: #111827;
-    }
-
-    .message {
-        background: #ecfdf5;
-        border-left: 5px solid #16a34a;
-        padding: 14px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-
-    .class-row {
-        padding: 20px 0;
-        border-bottom: 1px solid #e5e7eb;
-    }
-
-    .class-row:last-child {
-        border-bottom: none;
-    }
-
-    .class-info {
-        margin-bottom: 15px;
-    }
-
-    .time {
-        font-weight: bold;
-        color: #4b5563;
-        margin-bottom: 6px;
-    }
-
-    .subject {
-        font-size: 18px;
-        font-weight: bold;
-    }
-
-    .type {
-        color: #6b7280;
-        margin-top: 4px;
-        font-size: 14px;
-    }
-
-    .status-options {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .status-option {
-        display: inline-flex;
-        align-items: center;
-        padding: 10px 14px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        background: #f9fafb;
-        cursor: pointer;
-        font-weight: bold;
-    }
-
-    .status-option:hover {
-        background: #f3f4f6;
-    }
-
-    .status-option input {
-        margin-right: 7px;
-    }
-
-    .save-button {
-        width: 100%;
-        margin-top: 25px;
-        font-size: 16px;
-    }
-
-    .info-box {
-        background: #f9fafb;
-        border-left: 4px solid #6b7280;
-        padding: 14px;
-        border-radius: 7px;
-        margin-bottom: 20px;
-        color: #4b5563;
-    }
-
-    .empty {
-        text-align: center;
-        padding: 25px;
-        color: #6b7280;
-        background: #f9fafb;
-        border-radius: 8px;
-    }
-
-    .navigation {
-        display: grid;
-        grid-template-columns:
-            repeat(auto-fit, minmax(180px, 1fr));
-        gap: 12px;
-    }
-
-    .navigation a {
-        display: block;
-        padding: 12px;
-        text-align: center;
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        color: #1f2937;
-        text-decoration: none;
-        font-weight: bold;
-    }
-
-    .navigation a:hover {
-        background: #f3f4f6;
-    }
-
-    @media (max-width: 650px) {
-
-        .status-options {
-            flex-direction: column;
+        * {
+            box-sizing: border-box;
         }
 
-        .status-option {
-            width: 100%;
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #1f2937;
         }
+
+
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 28px 20px;
+        }
+
+
+        .header-content {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+
+        header p {
+            margin: 8px 0 0;
+            color: #d1d5db;
+        }
+
+
+        .container {
+            width: 92%;
+            max-width: 1000px;
+            margin: 30px auto;
+        }
+
+
+        .back {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #1f2937;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+
+        .back:hover {
+            text-decoration: underline;
+        }
+
 
         .card {
-            padding: 18px;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow:
+                0 3px 12px rgba(0,0,0,0.07);
         }
 
-    }
 
-</style>
-```
+        .card h2 {
+            margin-top: 0;
+        }
+
+
+        .semester {
+            background: #f3f4f6;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+
+        .date-info {
+            color: #6b7280;
+            margin-top: 8px;
+            margin-bottom: 20px;
+        }
+
+
+        label.main-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+
+        input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+
+        button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            background: #1f2937;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+
+        button:hover {
+            background: #111827;
+        }
+
+
+        .message {
+            background: #ecfdf5;
+            border-left: 5px solid #16a34a;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+
+        .class-row {
+            padding: 20px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+
+        .class-row:last-child {
+            border-bottom: none;
+        }
+
+
+        .class-info {
+            margin-bottom: 15px;
+        }
+
+
+        .time {
+            font-weight: bold;
+            color: #4b5563;
+            margin-bottom: 6px;
+        }
+
+
+        .subject {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+
+        .type {
+            color: #6b7280;
+            margin-top: 4px;
+            font-size: 14px;
+        }
+
+
+        .changed-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 5px 9px;
+            border-radius: 12px;
+            background: #fef3c7;
+            color: #92400e;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+
+        .status-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+
+        .status-option {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #f9fafb;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+
+        .status-option:hover {
+            background: #f3f4f6;
+        }
+
+
+        .status-option input {
+            margin-right: 7px;
+        }
+
+
+        .save-button {
+            width: 100%;
+            margin-top: 25px;
+            font-size: 16px;
+        }
+
+
+        .info-box {
+            background: #f9fafb;
+            border-left: 4px solid #6b7280;
+            padding: 14px;
+            border-radius: 7px;
+            margin-bottom: 20px;
+            color: #4b5563;
+        }
+
+
+        .empty {
+            text-align: center;
+            padding: 25px;
+            color: #6b7280;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+
+        .navigation {
+            display: grid;
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(180px, 1fr)
+                );
+            gap: 12px;
+        }
+
+
+        .navigation a {
+            display: block;
+            padding: 12px;
+            text-align: center;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            color: #1f2937;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+
+        .navigation a:hover {
+            background: #f3f4f6;
+        }
+
+
+        @media (max-width: 650px) {
+
+            .status-options {
+                flex-direction: column;
+            }
+
+
+            .status-option {
+                width: 100%;
+            }
+
+
+            .card {
+                padding: 18px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
+
 <body>
+
 
 <header>
 
-```
-<div class="header-content">
+    <div class="header-content">
 
-    <h1>
-        College Timetable & Attendance Planner
-    </h1>
+        <h1>
+            College Timetable & Attendance Planner
+        </h1>
 
-    <p>
-        Attendance Entry
-    </p>
+        <p>
+            Attendance Entry
+        </p>
 
-</div>
-```
+    </div>
 
 </header>
 
+
 <div class="container">
 
-```
-<a href="/" class="back">
-    ← Back to Dashboard
-</a>
+
+    <a
+        href="/"
+        class="back"
+    >
+        ← Back to Dashboard
+    </a>
 
 
-<div class="card">
-
-    <h2>
-        📊 Attendance Entry
-    </h2>
-
-    <div class="semester">
-
-        <strong>
-            Active Semester:
-        </strong>
-
-        {{ active_semester.name }}
-
-    </div>
-
-    <p class="date-info">
-        Select the date for which you want to enter
-        or update attendance.
-    </p>
-
-
-    <form method="POST">
-
-        <label
-            class="main-label"
-            for="date"
-        >
-            📅 Select Date
-        </label>
-
-        <input
-            type="date"
-            id="date"
-            name="date"
-            value="{{ selected_date }}"
-            required
-        >
-
-        <br><br>
-
-        <button type="submit">
-            📅 Load Classes
-        </button>
-
-    </form>
-
-</div>
-
-
-{% if message %}
-
-    <div class="message">
-
-        <strong>
-            {{ message }}
-        </strong>
-
-    </div>
-
-{% endif %}
-
-
-{% if classes %}
+    <!-- DATE SELECTION -->
 
     <div class="card">
 
         <h2>
-            📝 Mark Attendance
+            📊 Attendance Entry
         </h2>
 
-        <div class="info-box">
 
-            For each class, select the correct status.
-            Cancelled and postponed classes will not be
-            counted as attendance.
+        <div class="semester">
+
+            <strong>
+                Active Semester:
+            </strong>
+
+            {{ active_semester.name }}
 
         </div>
 
 
+        <p class="date-info">
+
+            Select the date for which you want
+            to enter or update attendance.
+
+        </p>
+
+
         <form method="POST">
 
+            <label
+                class="main-label"
+                for="date"
+            >
+
+                📅 Select Date
+
+            </label>
+
+
             <input
-                type="hidden"
+                type="date"
+                id="date"
                 name="date"
                 value="{{ selected_date }}"
+                required
             >
 
 
-            {% for entry in classes %}
-
-                <div class="class-row">
-
-
-                    <div class="class-info">
-
-                        <div class="time">
-
-                            🕐
-                            {{ entry.start_time }}
-                            –
-                            {{ entry.end_time }}
-
-                        </div>
-
-                        <div class="subject">
-
-                            {{ entry.subject.name }}
-
-                        </div>
-
-                        <div class="type">
-
-                            {{ entry.subject.subject_type }}
-
-                        </div>
-
-                    </div>
+            <br>
+            <br>
 
 
-                    <div class="status-options">
+            <button type="submit">
 
-
-                        <label class="status-option">
-
-                            <input
-                                type="radio"
-                                name="status_{{ entry.id }}"
-                                value="Present"
-                                required
-                            >
-
-                            ✅ Present
-
-                        </label>
-
-
-                        <label class="status-option">
-
-                            <input
-                                type="radio"
-                                name="status_{{ entry.id }}"
-                                value="Absent"
-                            >
-
-                            ❌ Absent
-
-                        </label>
-
-
-                        <label class="status-option">
-
-                            <input
-                                type="radio"
-                                name="status_{{ entry.id }}"
-                                value="Cancelled"
-                            >
-
-                            🚫 Cancelled
-
-                     
-                    </div>
-
-                </div>
-
-            {% endfor %}
-
-
-            <input
-                type="hidden"
-                name="save_attendance"
-                value="yes"
-            >
-
-
-            <button
-                type="submit"
-                class="save-button"
-            >
-
-                💾 Save Attendance
+                📅 Load Classes
 
             </button>
 
@@ -464,63 +396,272 @@
     </div>
 
 
-{% elif selected_date %}
+    {% if message %}
+
+        <div class="message">
+
+            <strong>
+                {{ message }}
+            </strong>
+
+        </div>
+
+    {% endif %}
+
+
+    {% if classes %}
+
+        <div class="card">
+
+            <h2>
+                📝 Mark Attendance
+            </h2>
+
+
+            <div class="info-box">
+
+                For each class, select the correct
+                attendance status.
+
+                <br><br>
+
+                Cancelled and postponed classes
+                are not counted as attendance.
+
+            </div>
+
+
+            <form method="POST">
+
+
+                <input
+                    type="hidden"
+                    name="date"
+                    value="{{ selected_date }}"
+                >
+
+
+                {% for entry in classes %}
+
+
+                    <div class="class-row">
+
+
+                        <div class="class-info">
+
+
+                            <div class="time">
+
+                                🕐
+                                {{ entry.start_time }}
+                                –
+                                {{ entry.end_time }}
+
+                            </div>
+
+
+                            <div class="subject">
+
+                                {{ entry.subject.name }}
+
+                            </div>
+
+
+                            <div class="type">
+
+                                {{ entry.subject.subject_type }}
+
+                            </div>
+
+
+                            {% if entry.changed %}
+
+                                <div class="changed-badge">
+
+                                    🔄
+                                    {{ entry.change_type }}
+
+                                </div>
+
+                            {% endif %}
+
+
+                        </div>
+
+
+                        <div class="status-options">
+
+
+                            <!-- PRESENT -->
+
+                            <label
+                                class="status-option"
+                            >
+
+                                <input
+                                    type="radio"
+                                    name="status_{{ entry.id }}"
+                                    value="Present"
+                                    required
+                                >
+
+                                ✅ Present
+
+                            </label>
+
+
+                            <!-- ABSENT -->
+
+                            <label
+                                class="status-option"
+                            >
+
+                                <input
+                                    type="radio"
+                                    name="status_{{ entry.id }}"
+                                    value="Absent"
+                                >
+
+                                ❌ Absent
+
+                            </label>
+
+
+                            <!-- CANCELLED -->
+
+                            <label
+                                class="status-option"
+                            >
+
+                                <input
+                                    type="radio"
+                                    name="status_{{ entry.id }}"
+                                    value="Cancelled"
+                                >
+
+                                🚫 Cancelled
+
+                            </label>
+
+
+                            <!-- POSTPONED -->
+
+                            <label
+                                class="status-option"
+                            >
+
+                                <input
+                                    type="radio"
+                                    name="status_{{ entry.id }}"
+                                    value="Postponed"
+                                >
+
+                                ⏸️ Postponed
+
+                            </label>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                {% endfor %}
+
+
+                <input
+                    type="hidden"
+                    name="save_attendance"
+                    value="yes"
+                >
+
+
+                <button
+                    type="submit"
+                    class="save-button"
+                >
+
+                    💾 Save Attendance
+
+                </button>
+
+
+            </form>
+
+        </div>
+
+
+    {% elif selected_date %}
+
+        <div class="card">
+
+            <div class="empty">
+
+                📭 No classes were found
+                for this date.
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- NAVIGATION -->
 
     <div class="card">
 
-        <div class="empty">
+        <h2>
+            🧭 Navigation
+        </h2>
 
-            📭 No classes were found for this date.
+
+        <div class="navigation">
+
+
+            <a href="/">
+                🏠 Home
+            </a>
+
+
+            <a href="/attendance">
+                📊 Attendance
+            </a>
+
+
+            <a href="/attendance-history">
+                📖 Attendance History
+            </a>
+
+
+            <a href="/planner">
+                🎯 75% Planner
+            </a>
+
+
+            <a href="/timetable">
+                🗓️ Timetable
+            </a>
+
+
+            <a href="/subjects">
+                📚 Subjects
+            </a>
+
+
+            <a href="/timetable-changes">
+                🔄 Timetable Changes
+            </a>
+
 
         </div>
 
     </div>
 
-{% endif %}
-
-
-<div class="card">
-
-    <h2>
-        🧭 Navigation
-    </h2>
-
-    <div class="navigation">
-
-        <a href="/">
-            🏠 Home
-        </a>
-
-        <a href="/attendance">
-            📊 Attendance
-        </a>
-
-        <a href="/attendance-history">
-            📖 Attendance History
-        </a>
-
-        <a href="/planner">
-            🎯 75% Planner
-        </a>
-
-        <a href="/timetable">
-            🗓️ Timetable
-        </a>
-
-        <a href="/subjects">
-            📚 Subjects
-        </a>
-
-        <a href="/timetable-changes">
-            🔄 Timetable Changes
-        </a>
-
-    </div>
 
 </div>
-```
 
-</div>
 
 </body>
 
