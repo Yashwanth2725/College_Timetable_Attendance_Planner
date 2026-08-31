@@ -14,8 +14,8 @@ from config import Config
 
 app = Flask(
     __name__,
-    template_folder="app/templates",
-    static_folder="app/static"
+    template_folder="templates",
+    static_folder="static"
 )
 
 app.config.from_object(Config)
